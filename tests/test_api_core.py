@@ -1,7 +1,5 @@
 import os
-import pytest
 from pytijo_api_client.command import ALL_COMMAND_LRU, Command
-import pytijo_api_client
 import hashlib
 import responses
 import json
@@ -24,7 +22,7 @@ def _get_md5(args):
 @responses.activate
 def test_lru_command(monkeypatch):
     def request_callback(request):
-        payload = json.loads(request.body)
+        # payload = json.loads(request.body)
         resp_body = {
             "has_more": False,
             "templates": [
