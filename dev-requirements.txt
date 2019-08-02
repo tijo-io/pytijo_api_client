@@ -1,0 +1,6 @@
+pytest
+responses
+tox
+flake8
+black
+request
