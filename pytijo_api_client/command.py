@@ -3,8 +3,6 @@ import ntpath
 import distutils.spawn
 import os
 import hashlib
-import requests
-import json
 from .utils import LRUCache
 
 DEFAULT_CACHE_FOLDER = "~/.tijo"

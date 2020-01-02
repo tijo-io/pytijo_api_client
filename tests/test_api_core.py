@@ -1,4 +1,5 @@
 import os
+from pytijo_api_client.tijoapi import TijoApi
 from pytijo_api_client.command import ALL_COMMAND_LRU, Command
 import hashlib
 import responses
@@ -69,26 +70,28 @@ def test_lru_command(monkeypatch):
     _delete_cache_file(CACHE_FOLDER, "ip")
     _delete_cache_file(CACHE_FOLDER, "netstat")
 
-    ifconfig = Command(["ifconfig"], CACHE_FOLDER, CAPACITY, TIJO_API)
-    ifconfig_a = Command(["ifconfig", "-a"], CACHE_FOLDER, CAPACITY, TIJO_API)
-    ifconfig_eth0 = Command(["ifconfig", "eth0"], CACHE_FOLDER, CAPACITY, TIJO_API)
-    ip = Command(["ip", "-a"], CACHE_FOLDER, CAPACITY, TIJO_API)
-    netstat = Command(["netstat"], CACHE_FOLDER, CAPACITY, TIJO_API)
+    api = TijoApi(tijo_api=TIJO_API,)
 
-    ifconfig.get_template()
+    ifconfig = Command(["ifconfig"], CACHE_FOLDER, CAPACITY)
+    ifconfig_a = Command(["ifconfig", "-a"], CACHE_FOLDER, CAPACITY)
+    ifconfig_eth0 = Command(["ifconfig", "eth0"], CACHE_FOLDER, CAPACITY)
+    ip = Command(["ip", "-a"], CACHE_FOLDER, CAPACITY)
+    netstat = Command(["netstat"], CACHE_FOLDER, CAPACITY)
+
+    ifconfig.get_template(api)
     assert len(ALL_COMMAND_LRU.cache) == 1
     assert "ifconfig" in ALL_COMMAND_LRU.cache
     assert len(ALL_COMMAND_LRU.cache["ifconfig"].cache) == 1
     assert _get_md5(ifconfig.args) in ALL_COMMAND_LRU.cache["ifconfig"].cache
 
-    ifconfig_a.get_template()
+    ifconfig_a.get_template(api)
     assert len(ALL_COMMAND_LRU.cache) == 1
     assert "ifconfig" in ALL_COMMAND_LRU.cache
     assert len(ALL_COMMAND_LRU.cache["ifconfig"].cache) == 2
     assert _get_md5(ifconfig.args) in ALL_COMMAND_LRU.cache["ifconfig"].cache
     assert _get_md5(ifconfig_a.args) in ALL_COMMAND_LRU.cache["ifconfig"].cache
 
-    ifconfig_eth0.get_template()
+    ifconfig_eth0.get_template(api)
     assert len(ALL_COMMAND_LRU.cache) == 1
     assert "ifconfig" in ALL_COMMAND_LRU.cache
     assert len(ALL_COMMAND_LRU.cache["ifconfig"].cache) == 2
@@ -96,19 +99,19 @@ def test_lru_command(monkeypatch):
     assert _get_md5(ifconfig_a.args) in ALL_COMMAND_LRU.cache["ifconfig"].cache
     assert _get_md5(ifconfig_eth0.args) in ALL_COMMAND_LRU.cache["ifconfig"].cache
 
-    ip.get_template()
+    ip.get_template(api)
     assert len(ALL_COMMAND_LRU.cache) == 2
     assert "ifconfig" in ALL_COMMAND_LRU.cache
     assert "ip" in ALL_COMMAND_LRU.cache
 
-    netstat.get_template()
+    netstat.get_template(api)
     assert len(ALL_COMMAND_LRU.cache) == 2
     assert "ifconfig" not in ALL_COMMAND_LRU.cache
     assert "ip" in ALL_COMMAND_LRU.cache
     assert "netstat" in ALL_COMMAND_LRU.cache
 
-    ifconfig = Command(["ifconfig"], CACHE_FOLDER, CAPACITY, TIJO_API)
-    ifconfig.get_template()
+    ifconfig = Command(["ifconfig"], CACHE_FOLDER, CAPACITY)
+    ifconfig.get_template(api)
     assert "ifconfig" in ALL_COMMAND_LRU.cache
     assert len(ALL_COMMAND_LRU.cache["ifconfig"].cache) == 2
     assert _get_md5(ifconfig.args) in ALL_COMMAND_LRU.cache["ifconfig"].cache

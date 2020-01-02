@@ -1,8 +1,4 @@
-import platform
-import ntpath
-import distutils.spawn
 import os
-import hashlib
 import requests
 import json
 import logging
